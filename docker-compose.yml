@@ -5,6 +5,7 @@ services:
       dockerfile: Dockerfile
     container_name: insurance_app
     restart: unless-stopped
+    user: "${UID}:${GID}"
     volumes:
       - .:/var/www/html
     depends_on:
