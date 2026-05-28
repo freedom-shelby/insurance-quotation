@@ -14,7 +14,7 @@ https://documenter.getpostman.com/view/580659/2sBXwmRtFR
 
 ```bash
 # 1. Clone the repository
-git clone <repository-url>
+git clone https://github.com/freedom-shelby/insurance-quotation.git
 cd insurance-quotation
 
 # 2. Copy environment file and configure
