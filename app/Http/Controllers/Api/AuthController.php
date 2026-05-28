@@ -4,31 +4,43 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
+use App\DTOs\RegisterUserDTO;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
-use App\Models\User;
+use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
+    public function __construct(
+        private readonly AuthService $auth,
+    ) {
+    }
+
     public function register(RegisterRequest $request): JsonResponse
     {
-        $user = User::create($request->validated());
-
-        $token = Auth::guard('api')->login($user);
+        ['user' => $user, 'token' => $token] = $this->auth->register(
+            new RegisterUserDTO(
+                name: $request->validated('name'),
+                email: $request->validated('email'),
+                password: $request->validated('password'),
+            )
+        );
 
         return response()->json([
             'message' => 'User registered successfully.',
             'user'    => $user,
-            'token'   => $this->tokenPayload((string)$token),
+            'token'   => $this->tokenPayload($token),
         ], 201);
     }
 
     public function login(LoginRequest $request): JsonResponse
     {
-        $token = Auth::guard('api')->attempt($request->validated());
+        $token = $this->auth->login(
+            $request->validated('email'),
+            $request->validated('password'),
+        );
 
         if ($token === false) {
             return response()->json(['message' => 'Invalid credentials.'], 401);
@@ -36,29 +48,27 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Login successful.',
-            'token'   => $this->tokenPayload((string)$token),
+            'token'   => $this->tokenPayload($token),
         ]);
     }
 
     public function logout(): JsonResponse
     {
-        Auth::guard('api')->logout();
+        $this->auth->logout();
 
         return response()->json(['message' => 'Logged out successfully.']);
     }
 
     public function refresh(): JsonResponse
     {
-        $token = Auth::guard('api')->refresh();
-
         return response()->json([
-            'token' => $this->tokenPayload((string)$token),
+            'token' => $this->tokenPayload($this->auth->refresh()),
         ]);
     }
 
     public function me(): JsonResponse
     {
-        return response()->json(Auth::guard('api')->user());
+        return response()->json($this->auth->currentUser());
     }
 
     private function tokenPayload(string $token): array
@@ -66,7 +76,7 @@ class AuthController extends Controller
         return [
             'access_token' => $token,
             'token_type'   => 'bearer',
-            'expires_in'   => (int)Auth::guard('api')->factory()->getTTL() * 60,
+            'expires_in'   => $this->auth->ttl() * 60,
         ];
     }
 }
