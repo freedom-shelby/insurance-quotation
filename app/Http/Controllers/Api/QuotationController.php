@@ -7,8 +7,7 @@ namespace App\Http\Controllers\Api;
 use App\Enums\Currency;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\QuotationRequest;
-use App\Repositories\QuotationRepository;
-use App\Services\QuotationCalculatorService;
+use App\Services\QuotationService;
 use DateTimeImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -16,8 +15,7 @@ use Illuminate\Support\Facades\Auth;
 class QuotationController extends Controller
 {
     public function __construct(
-        private readonly QuotationCalculatorService $calculator,
-        private readonly QuotationRepository $quotations,
+        private readonly QuotationService $service,
     ) {
     }
 
@@ -26,20 +24,20 @@ class QuotationController extends Controller
      */
     public function calculate(QuotationRequest $request): JsonResponse
     {
-        $result = $this->calculator->calculate(
+        $user = Auth::guard("api")->user();
+
+        $quotation = $this->service->createQuotation(
             ages: $request->input("age"),
             startDate: new DateTimeImmutable($request->input("start_date")),
             endDate: new DateTimeImmutable($request->input("end_date")),
             currency: Currency::from($request->input("currency_id")),
+            userId: $user->id,
         );
-
-        $user = Auth::guard("api")->user();
-        $quotation = $this->quotations->store($result, $user->id);
 
         return response()->json([
             "quotation_id" => $quotation->id,
-            "currency_id"  => $result->currency->value,
-            "total"        => number_format($result->total, 2),
+            "currency_id"  => $quotation->currency_code->value,
+            "total"        => number_format($quotation->total, 2),
         ], 201);
     }
 }

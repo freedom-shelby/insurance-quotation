@@ -15,7 +15,7 @@ use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 /**
  * @method static create(mixed $validated)
  * @method static firstOrCreate(string[] $array, string[] $array1)
- * @property mixed $id
+ * @property int $id
  */
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]

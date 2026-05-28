@@ -10,7 +10,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @method static create(array $array)
- * @property mixed $id
+ * @property int   $id
+ * @property float $total
+ * @property Currency $currency_code
  */
 class Quotation extends Model
 {
