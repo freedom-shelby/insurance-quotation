@@ -39,7 +39,7 @@ class QuotationController extends Controller
         return response()->json([
             "quotation_id" => $quotation->id,
             "currency_id"  => $result->currency->value,
-            "total"        => $result->total,
+            "total"        => number_format($result->total, 2),
         ], 201);
     }
 }
