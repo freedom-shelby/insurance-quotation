@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
+use App\DTOs\CreateQuotationDTO;
 use App\Enums\Currency;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\QuotationRequest;
@@ -27,11 +28,13 @@ class QuotationController extends Controller
         $user = Auth::guard("api")->user();
 
         $quotation = $this->service->createQuotation(
-            ages: $request->input("age"),
-            startDate: new DateTimeImmutable($request->input("start_date")),
-            endDate: new DateTimeImmutable($request->input("end_date")),
-            currency: Currency::from($request->input("currency_id")),
-            userId: $user->id,
+            new CreateQuotationDTO(
+                ages: $request->input("age"),
+                startDate: new DateTimeImmutable($request->input("start_date")),
+                endDate: new DateTimeImmutable($request->input("end_date")),
+                currency: Currency::from($request->input("currency_id")),
+                userId: $user->id,
+            )
         );
 
         return response()->json([

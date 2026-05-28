@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Enums\Currency;
+use App\DTOs\CreateQuotationDTO;
 use App\Models\Quotation;
 use App\Repositories\QuotationRepository;
-use DateTimeImmutable;
 
 final class QuotationService
 {
@@ -16,16 +15,15 @@ final class QuotationService
         private readonly QuotationRepository        $repository,
     ) {}
 
-    /** @param list<int> $ages */
-    public function createQuotation(
-        array             $ages,
-        DateTimeImmutable $startDate,
-        DateTimeImmutable $endDate,
-        Currency          $currency,
-        int               $userId,
-    ): Quotation {
-        $result = $this->calculator->calculate($ages, $startDate, $endDate, $currency);
+    public function createQuotation(CreateQuotationDTO $dto): Quotation
+    {
+        $result = $this->calculator->calculate(
+            $dto->ages,
+            $dto->startDate,
+            $dto->endDate,
+            $dto->currency,
+        );
 
-        return $this->repository->store($result, $userId);
+        return $this->repository->store($result, $dto->userId);
     }
 }
