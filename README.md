@@ -6,6 +6,10 @@ A travel insurance quotation API built with Laravel 13 and PHP 8.5, with JWT aut
 
 - Docker & Docker Compose
 
+## Postman Documentation
+
+https://documenter.getpostman.com/view/580659/2sBXwmRtFR
+
 ## Installation
 
 ```bash
